@@ -4,6 +4,9 @@
 //#include "genstack.h"
 #include "delim.h"
 
+//have left: got to account for the other brackets, {} and []
+// have to make sure error line is outputting the right LINE
+// basically check to see if it output works once it actyally compiles
 using namespace std;
 
 bool error = false;
@@ -53,10 +56,10 @@ int delim::openfile(string file){
 
               // if the character = a beginning bracket then we will push the bracket onto the stack
               if (character == '(' || character  == '{' || character  == '['){
-    					genstack.push(character);
-              // potentioally making the open bracket line the error line if there is no corresponding line
-    					Brakline = errorline;
-            }//end of ( if
+      					genstack.push(character);
+                // potentioally making the open bracket line the error line if there is no corresponding line
+      					Brakline = errorline;
+              }//end of ( if
 
               //have to check each ending bracket separetly
               else if(character == ')'){
@@ -93,7 +96,7 @@ int delim::openfile(string file){
                       else if(result == ']'){
                         expected = '[';
                       }
-          						cout << "SYNTAX ERROR ON LINE: "<< errorline << endl;  //wrong matching bracket
+          						cout << "SYNTAX ERROR ON LINE: "<< errorline << "expected/missing bracket: " << expected << endl;  //wrong matching bracket
                       error = true;
       					}
     					  genstack.pop();
@@ -105,6 +108,20 @@ int delim::openfile(string file){
 }//end of while loop
 
   inputFile.close();
+	if (genstack.isEmpty()){
+    return -1;
+    // meaning no errors
+  }
+	//otherwise there are errors, double checking the stack.
+	else if(genstack.peek() == '('){
+    return -2;
+  }
+	else if(genstack.peek() == '{'){
+    return -3;
+  }
+	else if(genstack.peek() == '['){
+    return -4;
+  }
 //   //return true;
 return 1;
 }
