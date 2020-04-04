@@ -1,16 +1,29 @@
-//#include "genstack.cpp"
+#include "StackEx.h"
 #include "delim.h"
+//#include "delim.h"
+#include <iostream>
 
-using namespace std;
+//test that the stack works
+int main(int argc, char** argv){
 
-int main(int argc, char **argv)
-{
+// making an object for the delim checker
+  delim* sourcecode = new delim();
 
-    delim objecttest;
-    cout << objecttest.openfile("qmain.cpp");
-//   GenStack *myStack = new GenStack(10);
-//
-//   myStack->push('R');
+// if the user doesnt enter a file, it will end the program
+// and ask them to provide a file
+  if (argc < 2){
+    cout << "Please provide a file!" << endl;
+    return 1;
+  }
+
+  string fileinput = argv[1];
+  sourcecode ->openFile(fileinput);
+
+  delete sourcecode;
+  return 0;
+}
+
+// myStack->push('R');
 //   myStack->push('e');
 //   myStack->push('n');
 //   myStack->push('e');
@@ -28,4 +41,4 @@ int main(int argc, char **argv)
 //
 //   delete myStack;
 //   return 0;
-}
+// }
