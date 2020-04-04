@@ -1,132 +1,193 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-//#include "genstack.h"
 #include "delim.h"
+/////////////////////////////
+// will return either 1 or 2
+//-1 = error
+// 2 = no error
+/////////////////////////
 
+//constructors
+delim::delim(){
+  //creating a stack for the brackets
+  m_brack = new genstack<char>();
+}
+//deconstructor
+delim::~delim(){
+  delete m_brack;
+}
+//checking syntax
+int delim::openFile(string fileinput){
+
+  ifstream userfile;
+  string choice = "1";
+  string line;
+//while the user wants a file
+  while (choice[0] == '1'){
+    m_brack->remove();
+    userfile.open(fileinput);
+
+    if(!userfile){
+      cout << "Unable to open file" << endl;
+      //exit the program if unable to open the file
+      exit(1);
+    }
+    cout << endl;
+    cout << "now checking file for proper syntax...." << endl;
+    cout << endl;
+
+    int lineNumber = 0;
+    char endingbrak = '0';
+
+    if (userfile.is_open()){
+      while (!userfile.eof()){
+        lineNumber++;
+        getline(userfile, line);
+        if (!userfile.fail()){
+          for (int i = 0; i < line.size(); ++i){
+            //////////////////////////////////
+            //checking bracket section///////
+            ////////////////////////////////
+            if (i == line.size() - 1 && !m_brack->isEmpty()){
+              //if missing the end paran return -1 for error
+              if (m_brack->top() == '(' && !(line[i] == ')')){
+                cout << "Syntax Error on line " << lineNumber <<  " Missing ')' " << endl;
+                cout << endl;
+                cout << "now fix your error!" << endl;
+                return -1;
+              }
+              //if missing the end ], return -1 for error
+              else if (m_brack->top() == '[' && !(line[i] == ']')){
+                cout << "Syntax Error on line " << lineNumber << " Missing ']' " << endl;
+                cout << endl;
+                cout << "now fix your error!" << endl;
+                return -1;
+              }
+            }
+            //adding brackets onto the stack
+            if (line[i] == '(' || line[i] == '[' || line[i] == '{'){
+              m_brack->push(line[i]);
+            }else if (line[i] == ')' || line[i] == ']' || line[i] == '}'){
+              //if the bracket stack is empty, means that there is an unwanted bracket
+              if (m_brack->isEmpty()){
+                cout << "Syntax Error on line: " << lineNumber << endl;
+                cout << "Extra '" << line[i] << "'"<<endl;
+                cout << endl;
+                cout << "now fix your error!" << endl;
+                return -1;
+              }else{
+                //if ending paran is not found, return an error
+                if (m_brack->top() == '(' && line[i] != ')'){
+                  cout << "Syntax Error on line: " << lineNumber << endl;
+                  cout << "Missing ) , found '" << line[i] << "' ." << endl;
+                  cout << endl;
+                  cout << "now fix your error!" << endl;
+                  return -1;
+                }
+                //same but for ]
+                else if (m_brack->top() == '[' && line[i] != ']'){
+                  cout << "Syntax Error on line: " << lineNumber << endl;
+                  cout << "Missing ] , found '" << line[i] << "' ." << endl;
+                  cout << endl;
+                  cout << "now fix your error!" << endl;
+                  return -1;
+                }
+                //same but for }
+                else if (m_brack->top() == '{' && line[i] != '}'){
+                  cout << "Syntax Error on line: " << lineNumber << endl;
+                  cout << "Missing } , found '" << line[i] << "' ." << endl;
+                  cout << endl;
+                  cout << "now fix your error!" << endl;
+                  return -1;
+                }
+                m_brack->pop();
+              }
+            }
+            endingbrak = line[i];
+          }
+        }
+      } // ending brak for while look while going over the sourcecode
+      //now checking the stack
+      if (m_brack->isEmpty()){
+        // if no leftover brackets ...
+        cout << "Congrats! your code is error free! No syntax errors found. " << endl;
+        cout << endl;
+        // will return 2 at the end of the class
+      }else{
+        // if left over brackets, will say what they expected
+        if (m_brack->top() == '(') {
+          cout << "Syntax Error on line: " << lineNumber << endl;
+          cout << "Expecting a ')'" << endl;
+          cout << endl;
+          cout << "now fix your error!" << endl;
+          cout << endl;
+          return -1;
+          // if left over brackets, will say what they expected
+        }else if (m_brack->top() == '[')  {
+          cout << "Syntax Error on line: " << lineNumber << endl;
+          cout << "Expecting a ']' " << endl;
+          cout << endl;
+          cout << "now fix your error!" << endl;
+          cout << endl;
+          return -1;
+          // if left over brackets, will say what they expected
+        }  else if (m_brack->top() == '{'){
+          cout << "Syntax Error on line: " << lineNumber << endl;
+          cout << "Expecting a '}' " << endl;
+          cout << endl;
+          cout << "now fix your error!" << endl;
+          cout << endl;
+          return -1;
+        }
+      }
+    }else {
+      cout << "File not found" << endl;
+    }
+    userfile.close();
+    //asking user if they want to check another file
+    cout << "Want to check another file? [yes = 1 , no = 2] : ";
+    cin >> choice;
+    while (choice[0] != '1' && choice[0] != '2'){
+      cout << "Incorrect input! Please enter '1' or '2'. " << endl;
+      cout << "Want to check another file? [1/2] :" << endl;
+      cin >> choice;
+    }
+    //starting the while loop again
+    if (choice[0] == '1'){
+      cout << "welcome to the syntax checker!" << endl;
+      cout << "Please enter the file name : ";
+      cin >> fileinput;
+      cout << endl;
+    }
+    }
+    //else exit out
+  return 2;
+}
+//////
 //have left: got to account for the other brackets, {} and []
 // have to make sure error line is outputting the right LINE
 // basically check to see if it output works once it actyally compiles
-using namespace std;
-
-bool error = false;
-
-int delim::openfile(string file){
-
-  string fileName = file;
-  ifstream inputFile;
-
-  inputFile.open(fileName);
-      if (!inputFile) {
-       cout << "Unable to open file .cpp" << endl;
-       //return false;
-       exit(1); //exit the program
-      }
-
-  cout << "this the correct input for a file. Now checking file for proper syntax..." << endl;
-
-////////////////////////////////
-//checking brackets section//
-//////////////////////////////
-
-  string line;
-  int Brakline = 0;
-  int errorline = 0;
-
-  while(getline(inputFile,line)){
-      bool commentline = false;
-      bool sline = false;
-      // this is to skip if it is a comment and not get confused
-    for(int i= 0; i < line.length(); i++){
-      char character = line[i];
-      //checkign if its a comment
-        if(character == '/'){
-          commentline = true;
-        }
-        if(character == '"' && sline == false){
-          //opening the string
-          sline = true;
-        }
-			  else if (character == '"' && sline == true){
-          //closing the string
-          sline = false;
-        }
-        //so if comment is false, then the line is not a comment and we can do some WERK on that fella
-        if (commentline == false && sline== false){
-
-              // if the character = a beginning bracket then we will push the bracket onto the stack
-              if (character == '(' || character  == '{' || character  == '['){
-      					genstack.push(character);
-                // potentioally making the open bracket line the error line if there is no corresponding line
-      					Brakline = errorline;
-              }//end of ( if
-
-              //have to check each ending bracket separetly
-              else if(character == ')'){
-
-                //if the stack is empty, this is a syntax error. will set error as true and return the line with error
-                if (genstack.isEmpty()){
-          						error = true;
-                      //returning the entire line with the error.
-          						cout <<  "SYNTAX ERROR ON LINE: "<< errorline << endl; // no matching bracket
-    					  }
-
-      					if (genstack.peek() != ')'){
-                      // meaning the expected bracket is the wrong type.
-                      char result;
-                      char expected;
-                      result = genstack.peek();
-
-                      // checking what the actual bracket shouldve been.
-                      if(result == '('){
-                        expected = ')';
-                      }
-                      else if(result == '{'){
-                        expected = '}';
-                      }
-                      else if(result == '['){
-                        expected = ']';
-                      }
-                      else if(result == ')'){
-                        expected = '(';
-                      }
-                      else if(result == '}'){
-                        expected = '{';
-                      }
-                      else if(result == ']'){
-                        expected = '[';
-                      }
-          						cout << "SYNTAX ERROR ON LINE: "<< errorline << "expected/missing bracket: " << expected << endl;  //wrong matching bracket
-                      error = true;
-      					}
-    					  genstack.pop();
-              }// end of ) if
-
-
-        }// end of big if maybe??
-    }// end of for loop
-}//end of while loop
-
-  inputFile.close();
-	if (genstack.isEmpty()){
-    return -1;
-    // meaning no errors
-  }
-	//otherwise there are errors, double checking the stack.
-	else if(genstack.peek() == '('){
-    return -2;
-  }
-	else if(genstack.peek() == '{'){
-    return -3;
-  }
-	else if(genstack.peek() == '['){
-    return -4;
-  }
-//   //return true;
-return 1;
-}
-
-
-//constructors
-delim::delim(){}
-delim::~delim(){}
+//                       // meaning the expected bracket is the wrong type.
+//                       char result;
+//                       char expected;
+//                       result = genstack.peek();
+//
+//                       // checking what the actual bracket shouldve been.
+//                       if(result == '('){
+//                         expected = ')';
+//                       }
+//                       else if(result == '{'){
+//                         expected = '}';
+//                       }
+//                       else if(result == '['){
+//                         expected = ']';
+//                       }
+//                       else if(result == ')'){
+//                         expected = '(';
+//                       }
+//                       else if(result == '}'){
+//                         expected = '{';
+//                       }
+//                       else if(result == ']'){
+//                         expected = '[';
+//                       }
+//           						cout << "SYNTAX ERROR ON LINE: "<< errorline << "expected/missing bracket: " << expected << endl;  //wrong matching bracket
+//                       error = true;
