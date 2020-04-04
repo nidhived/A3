@@ -1,84 +1,88 @@
 #include "genstack.h"
+//inclduing header class
 
-using namespace std;
-
-//template class also known as general classes
-
-template< class T>
-//default constructor
+//constructors
+template <typename T>
 genstack<T>::genstack(){
-
-  myArray = new char[128];
-  mSize = 128;
-  top = -1;
-
+  cap = 128;
+  first = -1;
+  myArray = new T[cap];
 }
-//overloaded constructor
-template <class T>
+//overloaded
+template <typename T>
 genstack<T>::genstack(int max){
-
-  myArray = new char[max];
-  mSize = max;
-  top = -1;
-
+  cap= max;
+  first = -1;
+  myArray = new T[cap];
 }
-
-template <class T>
-//overloaded constructor
+//deconstructor will delete
+template <typename T>
 genstack<T>::~genstack(){
-// FIGURE THIS OUT
-  delete [] myArray;
+  delete this->myArray;
 }
-
-template <class T>
-void genstack<T>::push(T data){
-  // check if full b4 inserting and increase the size if so
-  if(isFull()){
-      int newsize = mSize *2;
-      T *newarray = new T[newsize];
-
-      for(int i=0; i< newsize; i++){
-        newarray[i] = myArray[i];
-      }
-    mSize = newsize;
-    delete [] myArray;
-    myArray = newarray;
-  }
-  myArray[++top] = data;
-}
-
-template <class T>
-T genstack<T>::pop(){
-  // check if its empty
-  if(isEmpty()){
-    throw "Stack is empty error!";
-    return 0;
+// push onto the stack
+template <typename T>
+void genstack<T>::push(const T& t){
+  //first checking if the stack is empty
+  if (!this->isFull()){
+    this->myArray[++first] = t;
   }else{
-    // befor eyou remove
-    //post decrement, have not removed the other value from the array
-    return myArray[top--];
+    //increase the size of the stack
+    cap *= 2;
+    T* newArray = new T[cap];
+    for (int i = 0; i < this->currentsize(); ++i){
+      newArray[i] = myArray[i];
+    }
+    myArray = newArray;
+    this->myArray[++first] = t;
+    newArray = NULL;
+    delete [] newArray;
   }
 }
-
-template <class T>
-T genstack<T>::peek(){
-  if(isEmpty()){
-    throw "Stack is empty error!";
-    return 0;
+//popping values off the stack
+template <typename T>
+void genstack<T>::pop() throw(StackEx){
+  if (!this->isEmpty()){
+    --first;
   }else{
-  //tells us what is at the top of the stack
-  return myArray[top];
+    //if stack is empty cannot pop, throw exception class
+    throw StackEx();
   }
 }
-
-template <class T>
-bool genstack<T>::isFull(){
-  //checks if the array is full
-  return(top == mSize -1);
+// to find out the current size of the stack
+template <typename T>
+int genstack<T>::currentsize() const{
+  return first + 1;
+}
+// to see if the stack is empty
+template <typename T>
+bool genstack<T>::isEmpty() const{
+  return (first == -1);
+}
+//to check if the stack is full
+template <typename T>
+bool genstack<T>::isFull() const
+{
+  return (first == cap - 1);
+}
+// to check the top value of the stack
+template <typename T>
+const T& genstack<T>::top() const throw(StackEx){
+  if (!this->isEmpty()){
+    return this->myArray[first];
+  }else{
+    throw StackEx();
+  }
+}
+//remove the first value of the stack 
+template <typename T>
+void genstack<T>::remove(){
+  this->first = -1;
 }
 
-template <class T>
-bool genstack<T>::isEmpty(){
-  // checks if the array is empty
-  return(top == -1);
-}
+
+
+/////////////////////
+// #include "genstack.h"
+
+// //////////////
