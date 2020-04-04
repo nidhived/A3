@@ -1,21 +1,23 @@
 #ifndef DELIM_H
 #define DELIM_H
-
-#include "genstack.cpp"
+//header class for the delim.cpp
+#include <iostream>
+#include <fstream>
 #include "genstack.h"
-#include <iostream>
-#include <iostream>
+#include "genstack.cpp"
 
 using namespace std;
 
 class delim{
   public:
-    //constructor
+    //constructors
     delim();
-    //deconstructor
     ~delim();
+    //main function
+    int openFile(string fileinput);
 
-    int openfile(string file);
+  private:
+    //creating delim stack to check for open delims
+    genstack<char>* m_brack;
 };
-
 #endif
